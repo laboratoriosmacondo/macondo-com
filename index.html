@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Macondo Labs — BBS Menu (HTML)</title>
+<style>
+  :root{
+    --bg:#0c0c0c;
+    --frame-dark:#1b1b1b;
+    --frame-mid:#2a2a2a;
+    --frame-light:#3b3b3b;
+    --panel:#bdbdbd;           /* light gray menu panel */
+    --panel-inner:#c8c8c8;     /* slightly lighter for depth */
+    --text:#2a2a2a;
+    --text-soft:#4a4a4a;
+    --accent:#c62c25;          /* red hotkey letters */
+    --divider:#7b7b7b;
+    --scanline:linear-gradient(to bottom, rgba(255,255,255,.08) 0, rgba(255,255,255,0) 2px);
+  }
+
+  /* Page base */
+  html,body{
+    height:100%;
+    background:var(--bg);
+    color:var(--text);
+    margin:0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .wrap{
+    min-height:100%;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding: clamp(12px, 4vw, 28px);
+    box-sizing:border-box;
+  }
+
+  /* ===== Reserved logo space (drop your PNG above this panel) ===== */
+  .logo-space{
+    width:min(1100px, 100%);
+    aspect-ratio: 16/4;                   /* nice, wide slot */
+    min-height: clamp(120px, 22vw, 240px);
+    max-height: 280px;
+    margin: 0 auto clamp(10px, 2.5vw, 18px);
+    position:relative;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    pointer-events:none;
+    /* subtle CRT glitter to match the vibe even before image placed */
+    background:
+      repeating-linear-gradient(0deg, rgba(255,255,255,.05) 0 1px, transparent 1px 3px);
+    outline: 0 solid transparent; /* keeps layout stable */
+  }
+  .logo-space::after{
+    content:"";                        /* faint baseline under the logo */
+    width:92%;
+    height:6px;
+    margin-bottom:2px;
+    border-radius:2px;
+    background:
+      linear-gradient(to right, transparent, var(--frame-light) 12%, var(--frame-mid) 50%, var(--frame-light) 88%, transparent);
+    opacity:.9;
+  }
+
+  /* ===== Frame (outer border) ===== */
+  .frame{
+    position:relative;
+    width:min(1100px, 100%);
+    box-sizing:border-box;
+    padding: clamp(12px, 2vw, 18px);
+    background:
+      linear-gradient(180deg, var(--frame-dark), var(--frame-mid) 60%),
+      radial-gradient(120% 100% at 50% -20%, rgba(255,255,255,.06), transparent 60%);
+    border: 8px solid var(--frame-dark);
+    border-radius: 6px;
+    box-shadow:
+      0 0 0 6px var(--frame-mid),
+      0 0 0 10px var(--frame-light),
+      0 10px 0 10px rgba(0,0,0,.35);
+  }
+  /* pseudo "corner pixels" */
+  .frame::before, .frame::after{
+    content:"";
+    position:absolute;
+    inset:10px;
+    pointer-events:none;
+    border:2px solid rgba(255,255,255,.08);
+    border-radius:2px;
+  }
+
+  /* ===== Menu panel ===== */
+  .panel{
+    background:
+      var(--panel);
+    border:2px solid var(--frame-light);
+    outline: 3px solid var(--frame-mid);
+    border-radius: 4px;
+    box-shadow:
+      inset 0 0 0 3px var(--panel-inner),
+      inset 0 -6px 0 rgba(0,0,0,.08);
+    padding:0;
+  }
+
+  /* Header row (board name | main menu) */
+  .panel-header{
+    display:grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    padding: clamp(10px, 2vw, 14px) clamp(12px, 2.4vw, 18px);
+    color: var(--text-soft);
+    font-weight: 600;
+    border-bottom:1px solid var(--divider);
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.08), transparent),
+      repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 1px, transparent 1px 3px);
+  }
+  .panel-header .title{
+    letter-spacing:.02em;
+  }
+  .panel-header .right{
+    text-transform: lowercase;
+  }
+
+  /* Divider styling reminiscent of the thin BBS rule */
+  .rule{
+    height:1px;
+    background:
+      linear-gradient(to right, transparent, var(--divider) 8%, var(--divider) 92%, transparent);
+  }
+
+  /* Menu grid */
+  .menu{
+    display:grid;
+    grid-template-columns: 1fr;
+    padding: clamp(10px, 2vw, 18px);
+    gap: 6px 24px;
+  }
+  /* responsive: 2 columns on medium, 3 on wide */
+  @media (min-width: 640px){
+    .menu{ grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 980px){
+    .menu{ grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .col{
+    display:grid;
+    grid-auto-rows:minmax(28px, auto);
+    align-content:start;
+    padding-inline: clamp(2px, .5vw, 6px);
+  }
+
+  /* Each line item */
+  .item{
+    display:grid;
+    grid-template-columns: 1.2ch auto;
+    align-items:center;
+    column-gap: 10px;
+    font-size: clamp(14px, 2.4vw, 18px);
+    line-height: 1.35;
+    white-space: nowrap;
+  }
+  .hotkey{
+    color:var(--accent);
+    font-weight:700;
+    text-align:right;
+    padding-right:2px;
+  }
+  .label{
+    color:var(--text);
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  /* Footer / credits line */
+  .credits{
+    margin-top: clamp(10px, 1.8vw, 14px);
+    color:#a5a5a5;
+    font-size: clamp(12px, 2vw, 14px);
+    letter-spacing:.35em;
+    text-align:center;
+    text-transform: lowercase;
+    user-select:none;
+    opacity:.85;
+  }
+
+  /* A touch of glow like CRT */
+  .panel, .panel-header, .menu{
+    position:relative;
+  }
+  .panel::after{
+    content:"";
+    position:absolute; inset:0;
+    background: var(--scanline);
+    mix-blend-mode: soft-light;
+    pointer-events:none;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="frame" role="region" aria-label="BBS style framed menu">
+        <img class="logo-space" src="banner_site_ansi.png" alt="macondo labs" />
+      <div class="panel">
+
+        <!-- Header row -->
+        <div class="panel-header" aria-hidden="true">
+          <div class="title">macondo labs</div>
+          <div class="right">main menu</div>
+        </div>
+        <div class="rule" aria-hidden="true"></div>
+
+        <!-- Menu rows -->
+        <div class="menu" role="list">
+          <!-- Column -->
+          <div class="col">
+            <div class="item" role="listitem"><span class="hotkey">&nbsp;</span><span class="label" style="color: var(--accent);">Applications</span></div>
+            <div class="item" role="listitem"><span class="hotkey">s</span><span class="label"><a href="/cooking/" title="A recipe manager and planner for culinary enthusiasts."  style="color: var(--text); text-decoration: none;">Smart Cooking Clock</a></span></div>
+            <div class="item" role="listitem"><span class="hotkey">a</span><span class="label"><a href="image-comment/" title="Comment system that lets users interact directly with parts of images."  style="color: var(--text); text-decoration: none;">Art Notes</a></span></div>
+            <div class="item" role="listitem"><span class="hotkey">v</span><span class="label"><a href="https://viracasaca.com.br" title="Use AI to prank your friends and family." target="_blank" style="color: var(--text); text-decoration: none;">Vira Casaca</a></span></div>
+            <div class="item" role="listitem"><span class="hotkey">c</span><span class="label"><a href="/app/?file=calendario_do_corinthians.html" title="A calendar tracking key dates and games for Corinthians fans."  style="color: var(--text); text-decoration: none;">Calendário do Corinthians</a></span></div>
+            <div class="item" role="listitem"><span class="hotkey">c</span><span class="label"><a href="https://calendarteams.com/" title="Team-based event planner with shared views and alerts." target="_blank" style="color: var(--text); text-decoration: none;">Calendar Teams</a></span></div>
+            <div class="item" role="listitem"><span class="hotkey">r</span><span class="label"><a href="https://role-sp.com/" title="Interactive cultural map of São Paulo's street life and happenings." target="_blank" style="color: var(--text); text-decoration: none;">Rolê SP</a></span></div>
+            <div class="item" role="listitem"><span class="hotkey">a</span><span class="label"><a href="https://analisedeletras.com.br/" title="Tool for analyzing Brazilian song lyrics semantically." target="_blank" style="color: var(--text); text-decoration: none;">Análise de Letras</a></span></div>
+            <div class="item" role="listitem"><span class="hotkey">b</span><span class="label"><a href="https://bisk8.de" title="Indie digital skateboarding magazine platform." target="_blank" style="color: var(--text); text-decoration: none;">Bisk8 Zine</a></span></div>
+            <div class="item" role="listitem"><span class="hotkey">o</span><span class="label"><a href="#" title="Real-time visualization of police occurrences in São Paulo."  style="color: var(--text); text-decoration: none;">Ocorrências em SP</a></span></div>
+            <div class="item" role="listitem"><span class="hotkey">v</span><span class="label"><a href="https://videostimao.com.br" title="Video archive and fan content curation for Corinthians matches." target="_blank" style="color: var(--text); text-decoration: none;">Videos Timao</a></span></div>
+            <div class="item" role="listitem"><span class="hotkey">q</span><span class="label"><a href="https://quickfreewebtools.com" title="Small, no-login tools for daily use—generators, converters, and more." target="_blank" style="color: var(--text); text-decoration: none;">Quick Free Web Tools</a></span></div>
+          </div>
+          <!-- Column -->
+          <div class="col">
+            <div class="item" role="listitem"><span class="hotkey">&nbsp;</span><span class="label" style="color: var(--accent);">Social Media</span></div>
+            <div class="item" role="listitem"><span class="hotkey">p</span><span class="label"><a href="https://www.instagram.com/previsao_do_tempo_sp" title="Twitter bot with local weather updates and alerts for SP." target="_blank" style="color: var(--text); text-decoration: none;">previsao do tempo sp</a></span></div>
+            <div class="item" role="listitem"><span class="hotkey">r</span><span class="label"><a href="https://www.instagram.com/rolesp011" title="Curated updates on urban art, events, and locations in São Paulo." target="_blank" style="color: var(--text); text-decoration: none;">role sp 011</a></span></div>
+            <div class="item" role="listitem"><span class="hotkey">a</span><span class="label"><a href="https://www.instagram..com/analisedeletras" title="Also active socially—shares insights from lyrics automatically." target="_blank" style="color: var(--text); text-decoration: none;">analise de letras</a></span></div>
+            <div class="item" role="listitem"><span class="hotkey">c</span><span class="label"><a href="https://www.instagram.com/calendario_do_corinthians" title="Posts automated match countdowns and updates for followers." target="_blank" style="color: var(--text); text-decoration: none;">calendario do corinthians</a></span></div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="credits" aria-hidden="true">
+        m a c o n d o / t w o o  &nbsp; * &nbsp; m e n u b y j a z z
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
