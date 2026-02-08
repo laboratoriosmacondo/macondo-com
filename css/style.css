@@ -1,0 +1,161 @@
+:root{
+  --bg:#0c0c0c;
+  --frame-dark:#1b1b1b;
+  --frame-mid:#2a2a2a;
+  --frame-light:#3b3b3b;
+  --panel:#bdbdbd;           /* light gray menu panel */
+  --panel-inner:#c8c8c8;     /* slightly lighter for depth */
+  --text:#2a2a2a;
+  --text-soft:#4a4a4a;
+  --accent:#c62c25;          /* red hotkey letters */
+  --divider:#7b7b7b;
+  --scanline:linear-gradient(to bottom, rgba(255,255,255,.08) 0, rgba(255,255,255,0) 2px);
+}
+
+/* Page base */
+html,body{
+  height:100%;
+  background:var(--bg);
+  color:var(--text);
+  margin:0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.wrap{
+  min-height:100%;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding: clamp(12px, 4vw, 28px);
+  box-sizing:border-box;
+}
+
+/* ===== Reserved logo space (drop your PNG above this panel) ===== */
+.logo-space{
+  width:min(1100px, 100%);
+  aspect-ratio: 16/4;                   /* nice, wide slot */
+  min-height: clamp(120px, 22vw, 240px);
+  max-height: 280px;
+  margin: 0 auto clamp(10px, 2.5vw, 18px);
+  position:relative;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  pointer-events:none;
+  /* subtle CRT glitter to match the vibe even before image placed */
+  background:
+    repeating-linear-gradient(0deg, rgba(255,255,255,.05) 0 1px, transparent 1px 3px);
+  outline: 0 solid transparent; /* keeps layout stable */
+}
+
+/* ===== Frame (outer border) ===== */
+.frame{
+  position:relative;
+  width:min(1100px, 100%);
+  box-sizing:border-box;
+  padding: clamp(12px, 2vw, 18px);
+  background:
+    linear-gradient(180deg, var(--frame-dark), var(--frame-mid) 60%),
+    radial-gradient(120% 100% at 50% -20%, rgba(255,255,255,.06), transparent 60%);
+  border: 1px solid var(--frame-light);
+  border-radius: 0;
+}
+
+/* ===== Menu panel ===== */
+.panel{
+  background:
+    var(--panel);
+  border: 1px solid var(--divider);
+  border-radius: 0;
+  padding:0;
+}
+
+/* Header row (board name | main menu) */
+.panel-header{
+  display:grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  padding: clamp(10px, 2vw, 14px) clamp(12px, 2.4vw, 18px);
+  color: var(--text-soft);
+  font-weight: 600;
+  border-bottom:1px solid var(--divider);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.08), transparent),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 1px, transparent 1px 3px);
+}
+.panel-header .title{
+  letter-spacing:.02em;
+}
+.panel-header .right{
+  text-transform: lowercase;
+}
+
+/* Menu grid */
+.menu{
+  display:grid;
+  grid-template-columns: 1fr;
+  padding: clamp(10px, 2vw, 18px);
+  gap: 6px 24px;
+}
+/* responsive: 2 columns on medium, 3 on wide */
+@media (min-width: 640px){
+  .menu{ grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 980px){
+  .menu{ grid-template-columns: repeat(3, 1fr); }
+}
+
+.col{
+  display:grid;
+  grid-auto-rows:minmax(28px, auto);
+  align-content:start;
+  padding-inline: clamp(2px, .5vw, 6px);
+}
+
+/* Each line item */
+.item{
+  display:grid;
+  grid-template-columns: 1.2ch auto;
+  align-items:center;
+  column-gap: 10px;
+  font-size: clamp(14px, 2.4vw, 18px);
+  line-height: 1.35;
+  white-space: nowrap;
+}
+.hotkey{
+  color:var(--accent);
+  font-weight:700;
+  text-align:right;
+  padding-right:2px;
+}
+.label{
+  color:var(--text);
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* Footer / credits line */
+.credits{
+  margin-top: clamp(10px, 1.8vw, 14px);
+  color:#a5a5a5;
+  font-size: clamp(12px, 2vw, 14px);
+  letter-spacing:.35em;
+  text-align:center;
+  text-transform: lowercase;
+  user-select:none;
+  opacity:.85;
+}
+
+/* A touch of glow like CRT */
+.panel, .panel-header, .menu{
+  position:relative;
+}
+.panel::after{
+  content:"";
+  position:absolute; inset:0;
+  background: var(--scanline);
+  mix-blend-mode: soft-light;
+  pointer-events:none;
+}
